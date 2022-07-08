@@ -2323,6 +2323,10 @@
 (defmethod displayed-el? :default
   [driver el]
   {:pre [(some? el)]}
+  ;; HACK: The browser native "displayed" property doesn't appear to be accurate
+  ;; for `<option>` elements.
+  ;;
+  ;; See: https://github.com/clj-commons/etaoin/issues/444
   (if (= "option" (get-element-tag-el driver el))
     (effectively-displayed? driver el)
     (displayed-impl-value driver el)))
