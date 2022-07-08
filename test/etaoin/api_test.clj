@@ -78,6 +78,8 @@
     (-> (e/visible? {:id :button-visible}) is)
     (-> (e/visible? {:id :option-visible}) is)
     (-> (e/invisible? {:id :button-hidden}) is)
+    (-> (e/invisible? {:id :hidden-outer-div}) is)
+    (-> (e/invisible? {:id :hidden-inner-div}) is)
     (-> (e/invisible? {:id :div-hidden}) is)
     (-> (e/invisible? {:id :option-hidden}) is)
     (-> (e/invisible? {:id :dunno-foo-bar}) is)))
@@ -110,8 +112,8 @@
   (testing "fill human multiple imputs"
     (doto *driver*
       (e/fill-human-multi {:simple-input    "login"
-                         :simple-password "123"
-                         :simple-textarea "text"})
+                           :simple-password "123"
+                           :simple-textarea "text"})
       (e/click :simple-submit)
       (e/when-safari (e/wait 3))
       (-> e/get-url
@@ -640,7 +642,7 @@
   (let [text (e/get-element-text *driver* {:class :target})]
     (is (= text "target-1")))
   (let [text (e/get-element-text *driver* [{:class :foo}
-                                         {:class :target}])]
+                                           {:class :target}])]
     (is (= text "target-2")))
   (e/with-xpath *driver*
     (let [text (e/get-element-text *driver* ".//div[@class='target'][1]")]
