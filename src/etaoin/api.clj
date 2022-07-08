@@ -2289,6 +2289,19 @@
        :arglists '([driver q & more])}
   absent? (complement exists?))
 
+;; NOTE: This doesn't appear to be as reliable as checking the `visibility` and
+;; `display` attributes. See this issue, for example:
+;; https://github.com/clj-commons/etaoin/issues/444
+(defn- displayed-impl-value
+  "Returns the browser native `displayed` attribute for an element.
+   Reference:
+   https://www.w3.org/TR/webdriver/#element-displayedness"
+  [driver el]
+  {:pre [(some? el)]}
+  (:value (execute {:driver driver
+                    :method :get
+                    :path   [:session (:session driver) :element el :displayed]})))
+
 ;; TODO: I think we might have broken this! @lread
 (defn- effectively-displayed?
   [driver el]
@@ -2310,6 +2323,17 @@
 (defmethod displayed-el? :default
   [driver el]
   {:pre [(some? el)]}
+  (if (= "option" (get-element-tag-el driver el))
+    (effectively-displayed? driver el)
+    (displayed-impl-value driver el)))
+
+(defmethod displayed-el? :safari
+  [driver el]
+  {:pre [(some? el)]}
+  ;; Safari doesn't have a native `displayed` implementation*, so the pragmatic
+  ;; approach is our only option.
+  ;;
+  ;; *Or at least, it didn't, historically? TODO: verify
   (effectively-displayed? driver el))
 
 (defn displayed?
